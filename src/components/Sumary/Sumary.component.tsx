@@ -38,7 +38,7 @@ export const Sumary = () => {
   return (
     <S.Container>
       {contents.map((content) => (
-        <S.Content highlightBackground={content.highlightBackground}>
+        <S.Content key={content.title} highlightBackground={content.highlightBackground}>
           <header>
             <p>{content.title}</p>
             <img src={content.icon} alt={content.title} />
