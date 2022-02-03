@@ -5,6 +5,7 @@ export const Dashboard = () => {
   return (
     <S.Container>
       <C.Sumary />
+      <C.TransactionsTable />
     </S.Container>
   )
 }
