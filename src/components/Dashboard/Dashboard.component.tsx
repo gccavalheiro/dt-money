@@ -4,7 +4,7 @@ import * as S from './Dashboard.styles'
 export const Dashboard = () => {
   return (
     <S.Container>
-      <C.Sumary />
+      <C.Summary />
       <C.TransactionsTable />
     </S.Container>
   )

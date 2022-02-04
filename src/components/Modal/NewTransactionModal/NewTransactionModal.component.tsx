@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import Modal from 'react-modal'
+
+import { useTransactions } from '../../../hooks/useTransactions'
 
 import closeImage from '../../../assets/images/close.svg'
 import incomeImage from '../../../assets/images/income.svg'
 import outcomeImage from '../../../assets/images/outcome.svg'
-import { api } from '../../../services/api'
 
 import * as S from './NewTransactionModal.styles'
 
@@ -13,70 +14,66 @@ interface NewTransactionModalProps {
   onRequestClose: () => void;
 }
 
-interface FormStateProps {
-  values: {
-    name: string;
-    amount: string;
-    category: string;
-    type: string;
-  },
-  disabled: boolean;
-}
+// interface FormStateProps {
+//   values: {
+//     title: string;
+//     amount: string;
+//     category: string;
+//     type: string;
+//   },
+//   disabled: boolean;
+// }
 
 export const NewTransactionModal = (props: NewTransactionModalProps) => {
-  const [type, setType] = React.useState('deposit')
-  const [formState, setFormState] = React.useState<FormStateProps>(
-    {
-      values: {
-        name: '',
-        amount: '',
-        category: '',
-        type: 'deposit',
-      },
-      disabled: false,
-    }
-  )
+  const { createTransaction } = useTransactions()
 
-  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      values: {
-        ...formState.values,
-        [event.target.name as keyof typeof formState.values]: event.target.value,
-        type
-      }
-    }))
-  }, [formState, type])
+  const [title, setTitle] = React.useState('')
+  const [amount, setAmount] = React.useState(0)
+  const [category, setCategory] = React.useState('')
+  const [type, setType] = React.useState('deposit')
+  const [disabled, setDisabled] = React.useState(false)
+
+  // const [formState, setFormState] = React.useState<FormStateProps>(
+  //   {
+  //     values: {
+  //       title: '',
+  //       amount: '',
+  //       category: '',
+  //       type,
+  //     },
+  //     disabled: false,
+  //   }
+  // )
+
+  // const handleInputChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setFormState((prevState) => ({
+  //     ...prevState,
+  //     values: {
+  //       ...formState.values,
+  //       [event.target.name as keyof typeof formState.values]: event.target.value,
+  //       type,
+  //     }
+  //   }))
+  // }, [formState, type])
 
   const handleSubmit = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setDisabled(true)
 
-    try {
-      event.preventDefault();
+    await createTransaction({
+      title,
+      amount,
+      category,
+      type,
+    })
 
-      setFormState((formState) => ({
-        values: {
-          ...formState.values,
-          type
-        },
-        disabled: true,
-      }))
-      console.log(formState.values);
-
-      api.post('/transactions', formState.values)
-
-      setFormState((formState) => ({
-        values: {
-          name: '',
-          amount: '',
-          category: '',
-          type,
-        },
-        disabled: false,
-      }))
-    } catch (error) {
-      console.log(error);
-    }
-  }, [formState.values, type])
+    setTitle('')
+    setAmount(0)
+    setCategory('')
+    setType('deposit')
+    setDisabled(false)
+    props.onRequestClose();
+  }, [amount, category, createTransaction, props, title, type])
 
 
   return (
@@ -101,19 +98,19 @@ export const NewTransactionModal = (props: NewTransactionModalProps) => {
 
         <input
           type="text"
-          name="name"
-          id="name"
-          placeholder='Nome'
-          value={formState.values.name}
-          onChange={handleInputChange} />
+          name="title"
+          id="title"
+          placeholder='Título'
+          value={title}
+          onChange={(event) => setTitle(event.target.value)} />
 
         <input
           type="number"
           name="amount"
           id="amount"
           placeholder='Valor'
-          value={formState.values.amount}
-          onChange={handleInputChange}
+          value={amount}
+          onChange={(event) => setAmount(Number(event.target.value))}
         />
 
         <S.TransactionTypeContainer>
@@ -122,6 +119,7 @@ export const NewTransactionModal = (props: NewTransactionModalProps) => {
             onClick={() => setType('deposit')}
             isActive={type === 'deposit'}
             activeColor={'green'}
+            name="deposit"
           >
             <img src={incomeImage} alt="Entrada" />
             <span>Entrada</span>
@@ -133,6 +131,7 @@ export const NewTransactionModal = (props: NewTransactionModalProps) => {
             onClick={() => setType('withdraw')}
             isActive={type === 'withdraw'}
             activeColor={'red'}
+            name="withdraw"
           >
             <img src={outcomeImage} alt="Saída" />
             <span>Saída</span>
@@ -144,11 +143,11 @@ export const NewTransactionModal = (props: NewTransactionModalProps) => {
           name="category"
           id="category"
           placeholder='Categoria'
-          value={formState.values.category}
-          onChange={handleInputChange}
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
         />
 
-        <button type="submit" disabled={formState.disabled}>Cadastrar</button>
+        <button type="submit" disabled={disabled}>Cadastrar</button>
       </S.Container>
     </Modal>
   )

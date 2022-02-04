@@ -1,4 +1,4 @@
 export * from "./Header";
 export * from "./Dashboard";
-export * from "./Sumary";
+export * from "./Summary";
 export * from "./TransactionsTable";

@@ -1,7 +1,8 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 interface ContentProps {
   highlightBackground?: boolean;
+  dangerous?: boolean;
 }
 
 export const Container = styled.div`
@@ -12,11 +13,24 @@ export const Container = styled.div`
 `;
 
 export const Content = styled.div<ContentProps>`
-  background-color: ${(props) =>
-    props.highlightBackground ? "var(--green)" : "var(--shape)"};
+  background-color: var(--shape);
   padding: 1.5rem 2rem;
   border-radius: 0.25rem;
   color: ${(props) => (props.highlightBackground ? "#FFF" : "var(--titles)")};
+  transition: 0.2s;
+  overflow: hidden;
+
+  ${(props) =>
+    props.highlightBackground &&
+    css`
+      background-color: var(--green);
+    `}
+
+  ${(props) =>
+    props.dangerous &&
+    css`
+      background-color: var(--red);
+    `}
 
   header {
     display: flex;
@@ -30,5 +44,8 @@ export const Content = styled.div<ContentProps>`
     font-size: 2rem;
     font-weight: 500;
     line-height: 3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
